@@ -41,6 +41,21 @@ addMoney 5{
 	}
 }
 
+.ItemInfo{
+	id 0 : integer
+	param1 1 : integer
+	param2 2 : string
+}
+
+jinglian 6{
+	request {
+		items 0 : *ItemInfo
+	}
+	response {
+		items 0 : *ItemInfo
+	}
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[

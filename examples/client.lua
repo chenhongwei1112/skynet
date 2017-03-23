@@ -73,6 +73,14 @@ local function print_response(session, args)
 	if args then
 		for k,v in pairs(args) do
 			print(k,v)
+			if k == "items" then
+				for k, v in pairs( v ) do
+					print( k, v )
+					for k, v in pairs( v ) do
+						print( k, v )
+					end
+				end
+			end
 		end
 	end
 end
@@ -110,6 +118,16 @@ while true do
 			send_request("get", { what = cmd })
 		elseif cmd == "addMoney" then
 			send_request("addMoney",{ money = 100})
+		elseif cmd == "jinglian" then
+			local datas = {}
+			for i = 1, 10 do
+				local data = {}
+				data.id = 1000 + i
+				data.param1 = 50000 + i
+				data.param2 = "AAAA"..i
+				table.insert( datas, data)
+			end
+			send_request("jinglian",{ items = datas})
 		end
 	else
 		socket.usleep(100)

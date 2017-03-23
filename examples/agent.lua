@@ -28,6 +28,15 @@ function REQUEST:addMoney()
 	return { money = (self.money + 100) }
 end
 
+function REQUEST:jinglian()
+	print("jinglian", self.items)
+	for i, v in ipairs( self.items ) do
+		v.param1 = v.param1 + 300
+		v.param2 = v.param2.."CCC"
+	end
+	return { items = self.items }
+end
+
 function REQUEST:handshake()
 	return { msg = "Welcome to skynet, I will send heartbeat every 5 sec." }
 end
