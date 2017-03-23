@@ -23,6 +23,11 @@ function REQUEST:set()
 	local r = skynet.call("SIMPLEDB", "lua", "set", self.what, self.value)
 end
 
+function REQUEST:addMoney()
+	print("addMoney", self.money)
+	return { money = (self.money + 100) }
+end
+
 function REQUEST:handshake()
 	return { msg = "Welcome to skynet, I will send heartbeat every 5 sec." }
 end

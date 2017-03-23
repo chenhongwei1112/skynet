@@ -106,8 +106,10 @@ while true do
 	if cmd then
 		if cmd == "quit" then
 			send_request("quit")
-		else
+		elseif cmd == "get" then
 			send_request("get", { what = cmd })
+		elseif cmd == "addMoney" then
+			send_request("addMoney",{ money = 100})
 		end
 	else
 		socket.usleep(100)

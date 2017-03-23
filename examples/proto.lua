@@ -32,6 +32,15 @@ set 3 {
 
 quit 4 {}
 
+addMoney 5{
+	request {
+		money 0 : integer
+	}
+	response {
+		money 0 : integer
+	}
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[
