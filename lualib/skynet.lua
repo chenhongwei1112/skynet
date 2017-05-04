@@ -1,3 +1,4 @@
+-- read https://github.com/cloudwu/skynet/wiki/FAQ for the module "skynet.core"
 local c = require "skynet.core"
 local tostring = tostring
 local tonumber = tonumber
@@ -237,10 +238,12 @@ function suspend(co, result, command, param, size)
 	elseif command == "EXIT" then
 		-- coroutine exit
 		local address = session_coroutine_address[co]
-		release_watching(address)
-		session_coroutine_id[co] = nil
-		session_coroutine_address[co] = nil
-		session_response[co] = nil
+		if address then
+			release_watching(address)
+			session_coroutine_id[co] = nil
+			session_coroutine_address[co] = nil
+			session_response[co] = nil
+		end
 	elseif command == "QUIT" then
 		-- service exit
 		return
@@ -330,7 +333,7 @@ function skynet.exit()
 	for co, session in pairs(session_coroutine_id) do
 		local address = session_coroutine_address[co]
 		if session~=0 and address then
-			c.redirect(address, 0, skynet.PTYPE_ERROR, session, "")
+			c.send(address, skynet.PTYPE_ERROR, session, "")
 		end
 	end
 	for resp in pairs(unresponse) do
@@ -342,7 +345,7 @@ function skynet.exit()
 		tmp[address] = true
 	end
 	for address in pairs(tmp) do
-		c.redirect(address, 0, skynet.PTYPE_ERROR, 0, "")
+		c.send(address, skynet.PTYPE_ERROR, 0, "")
 	end
 	c.command("EXIT")
 	-- quit service
@@ -360,6 +363,11 @@ end
 function skynet.send(addr, typename, ...)
 	local p = proto[typename]
 	return c.send(addr, p.id, 0 , p.pack(...))
+end
+
+function skynet.rawsend(addr, typename, msg, sz)
+	local p = proto[typename]
+	return c.send(addr, p.id, 0 , msg, sz)
 end
 
 skynet.genid = assert(c.genid)
