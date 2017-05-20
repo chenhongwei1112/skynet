@@ -56,6 +56,15 @@ jinglian 6{
 	}
 }
 
+foobar 7 {
+  request {
+    what 0 : string
+  }
+  response {
+    ok 0 : integer
+  }
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[

@@ -37,6 +37,10 @@ function REQUEST:jinglian()
 	return { items = self.items }
 end
 
+function REQUEST:foobar()
+	return { ok = 1 }
+end
+
 function REQUEST:handshake()
 	return { msg = "Welcome to skynet, I will send heartbeat every 5 sec." }
 end
