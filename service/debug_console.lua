@@ -240,7 +240,7 @@ function COMMAND.test(address, cmd, data)
 		cmd1 = "req"
 	end
 	local t = snax.bind(address, "testservice")
-	t[cmd1][cmd2](data)
+	return t[cmd1][cmd2](data)
 end
 
 function COMMAND.gc()
