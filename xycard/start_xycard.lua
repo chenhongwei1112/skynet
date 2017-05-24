@@ -1,3 +1,7 @@
+package.path = "./xycard/base/?.lua;".. "./xycard/class/?.lua;" .. package.path
+
+require "functions"
+
 local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
 local snax = require "snax"
@@ -32,6 +36,18 @@ skynet.start(function()
 
 
 	-- local echo_reload = skynet.newservice("echo_reload")
+
+
+local Circle = require "Circle"
+local Rectangle = require "Rectangle"
+
+local circle = Circle.new()             -- 输出: Shape:ctor(circle)
+circle:setRadius(200)
+circle:draw()                           -- 输出: draw circle, radius = 200.00
+
+local rectangle = Rectangle.new()       -- 输出: Shape:ctor(rectangle)
+rectangle:draw()                        -- 输出: draw rectangle
+
 
 	skynet.exit()
 end)
