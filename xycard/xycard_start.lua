@@ -35,6 +35,7 @@ skynet.start(function()
 
 
 	-- local echo_reload = skynet.newservice("echo_reload")
+	   local loginservice = skynet.newservice("login")
 
 	skynet.exit()
 end)

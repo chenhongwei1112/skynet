@@ -41,6 +41,11 @@ function REQUEST:foobar()
 	return { ok = 1 }
 end
 
+function REQUEST:login()
+	local r, msg = skynet.call("LOGINSERVICE", "lua", "login", self.username, self.pwd)
+	return { ok = r , msg = msg}
+end
+
 function REQUEST:handshake()
 	return { msg = "Welcome to skynet, I will send heartbeat every 5 sec." }
 end

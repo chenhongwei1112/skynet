@@ -65,6 +65,17 @@ foobar 7 {
   }
 }
 
+login 8 {
+  request {
+    username 0 : string
+    pwd 1 : string
+  }
+  response {
+    ok 0 : boolean
+    msg 1 : string
+  }
+}
+
 ]]
 
 proto.s2c = sprotoparser.parse [[
