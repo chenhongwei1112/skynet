@@ -1,6 +1,6 @@
-package.path = "./xycard/base/?.lua;".. "./xycard/class/?.lua;" .. package.path
+package.path = "./xycard/?.lua;" .. package.path
 
-require "functions"
+require "init"
 
 local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
@@ -36,6 +36,6 @@ skynet.start(function()
 
 
 	-- local echo_reload = skynet.newservice("echo_reload")
-	
+
 	skynet.exit()
 end)
