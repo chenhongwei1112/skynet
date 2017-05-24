@@ -11,7 +11,7 @@ function response.login(username, pwd)
 end
 
 function init( ... )
-	print("----------testservice start--------------")
+	print("----------login service start--------------")
 end
 
 function exit(...)
