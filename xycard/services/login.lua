@@ -6,7 +6,7 @@ function response.login(username, pwd)
 	if username == "chenhw" and pwd == "333" then
 		return true, nil
 	else
-		return false, "error AAAA"
+		return false, "pwd err"
 	end
 end
 
