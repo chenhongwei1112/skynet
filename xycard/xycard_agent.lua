@@ -3,6 +3,7 @@ local netpack = require "netpack"
 local socket = require "socket"
 local sproto = require "sproto"
 local sprotoloader = require "sprotoloader"
+local snax = require "snax"
 
 local WATCHDOG
 local host
@@ -42,7 +43,8 @@ function REQUEST:foobar()
 end
 
 function REQUEST:login()
-	local r, msg = skynet.call("LOGINSERVICE", "lua", "login", self.username, self.pwd)
+	local login_s = snax.queryservice("login")
+	local r, msg = login_s.req.login(self.username, self.pwd)
 	return { ok = r , msg = msg}
 end
 
