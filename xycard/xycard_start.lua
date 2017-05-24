@@ -1,6 +1,6 @@
 package.path = "./xycard/?.lua;" .. package.path
 
-require "init"
+require "xycard_init"
 
 local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
