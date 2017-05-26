@@ -5,9 +5,11 @@ local snax = require "snax"
 local i = 7
 local hello = "hello"
 
+local invoke_func_stop
+
 function hotfix(...)
 	local temp = i
-	i = 7
+	i = 7 
 	return temp
 end
 
@@ -17,11 +19,17 @@ function response.ping(hello)
 end
 
 function accept.hello(str)
-	print("ccc"..str..i)
+	print("c22cc"..str..i)
+	
+	-- invoke_func_stop()
 end
 
 function init( ... )
 	print("----------test_service_01 start--------------")
+
+	-- invoke_func_stop = snax.invokeRepeat(function ( ... )
+	-- 	print("MMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM")
+	-- end, 100)
 end
 
 function exit(...)

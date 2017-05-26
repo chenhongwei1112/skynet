@@ -181,4 +181,28 @@ function snax.reloadScript(fileName)
     snax.hotfix(snax.self(), content)
 end
 
+function snax.invokeDelay(f, ti)
+	local function t()
+		if f then
+			f()
+		end
+	end
+ 	skynet.timeout(ti, t)
+ 	return function() f=nil end
+end
+
+function snax.invokeRepeat(f, ti)
+ 	skynet.fork(function()
+ 	    while true do
+ 	    	if not f then
+ 	    		break
+ 	    	end
+ 	    	f()
+ 	    	skynet.sleep(ti)
+	    end
+	end)
+ 	return function() f=nil end
+end
+
+
 return snax
