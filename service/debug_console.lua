@@ -243,6 +243,17 @@ function COMMAND.test(address, cmd, data)
 	return t[cmd1][cmd2](data)
 end
 
+function COMMAND.xytest(name, cmd, ...)
+	local curService = snax.queryservice(name)
+	local cmd1, cmd2 = string.match(cmd, "(%S+)%.(%S+)")
+	if cmd1 == "accept" then
+		cmd1 = "post"
+	elseif cmd1 == "response" then
+		cmd1 = "req"
+	end
+	return {curService[cmd1][cmd2](...)}
+end
+
 function COMMAND.test_service(name, cmd, ...)
 	local curService = snax.queryservice(name)
 	local cmd1, cmd2 = string.match(cmd, "(%S+)%.(%S+)")

@@ -171,4 +171,14 @@ function snax.profile_info(obj)
 	return skynet_call(obj.handle, "snax", t.system.profile)
 end
 
+function snax.reloadScript(fileName)
+    local file = io.open(fileName, "rb")
+    if not file then 
+    	return nil 
+    end
+    local content = file:read "*a"
+    file:close()
+    snax.hotfix(snax.self(), content)
+end
+
 return snax
