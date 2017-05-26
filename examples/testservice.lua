@@ -20,15 +20,15 @@ function accept.hello(str)
 	print("ccc"..str..i)
 end
 
-function accept.reloadCode()
-	local fileName = debug.getinfo(1,'S').source:sub(2)
-    snax.reloadScript(fileName)
-end
-
 function init( ... )
 	print("----------test_service_01 start--------------")
 end
 
 function exit(...)
 	print ("service exit", ...)
+end
+
+function accept.reloadCode()
+	local fileName = debug.getinfo(1,'S').source:sub(2)
+    snax.reloadScript(fileName)
 end
