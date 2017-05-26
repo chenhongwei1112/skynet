@@ -21,7 +21,7 @@ skynet.start(function()
 	})
 	skynet.error("Watchdog listen on", 8888)
 
-	local testservice = snax.newservice("testservice")
+	local testservice = snax.uniqueservice("testservice")
 	-- local myservice1 = skynet.newservice("myservice1")
 
 	-- local myservice1 = skynet.newservice("myservice1")
