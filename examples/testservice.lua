@@ -19,7 +19,7 @@ function response.ping(hello)
 end
 
 function accept.hello(str)
-	print("c22cc"..str..i)
+	print("c22cc1111"..str..i)
 	
 	-- invoke_func_stop()
 end

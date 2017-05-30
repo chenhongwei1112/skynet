@@ -1,6 +1,7 @@
 local skynet = require "skynet"
 
 skynet.start(function()
+	skynet.uniqueservice("protoloader")
 	local loginserver = skynet.newservice("logind")
 	local gate = skynet.newservice("gated", loginserver)
 

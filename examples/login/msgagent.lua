@@ -1,4 +1,5 @@
 local skynet = require "skynet"
+local sprotoloader = require "sprotoloader"
 
 skynet.register_protocol {
 	name = "client",
@@ -39,6 +40,9 @@ function CMD.afk(source)
 end
 
 skynet.start(function()
+	host = sprotoloader.load(1):host "package"
+	send_request = host:attach(sprotoloader.load(2))
+
 	-- If you want to fork a work thread , you MUST do it in CMD.login
 	skynet.dispatch("lua", function(session, source, command, ...)
 		local f = assert(CMD[command])
@@ -48,6 +52,6 @@ skynet.start(function()
 	skynet.dispatch("client", function(_,_, msg)
 		-- the simple echo service
 		skynet.sleep(10)	-- sleep a while
-		skynet.ret(msg)
+		skynet.ret(send_request "heartbeat")
 	end)
 end)
