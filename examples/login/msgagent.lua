@@ -1,15 +1,11 @@
 local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
 
-skynet.register_protocol {
-	name = "client",
-	id = skynet.PTYPE_CLIENT,
-	unpack = skynet.tostring,
-}
-
+local host
 local gate
 local userid, subid
 
+local REQUEST = {}
 local CMD = {}
 
 function CMD.login(source, uid, sid, secret)
@@ -39,6 +35,42 @@ function CMD.afk(source)
 	skynet.error(string.format("AFK"))
 end
 
+function REQUEST:foobar()
+	return { ok = 1 }
+end
+
+local function request(name, args, response)
+	local f = assert(REQUEST[name])
+	local r = f(args)
+	if response then
+		return response(r)
+	end
+end
+
+skynet.register_protocol {
+	name = "client",
+	id = skynet.PTYPE_CLIENT,
+	unpack = function (msg, sz)
+		return host:dispatch(msg, sz)
+	end,
+	dispatch = function (_, _, type, ...)
+		if type == "REQUEST" then
+			local ok, result  = pcall(request, ...)
+			if ok then
+				if result then
+					--send_package(result)
+					skynet.ret(result)
+				end
+			else
+				skynet.error(result)
+			end
+		else
+			assert(type == "RESPONSE")
+			error "This example doesn't support request client"
+		end
+	end
+}
+
 skynet.start(function()
 	host = sprotoloader.load(1):host "package"
 	send_request = host:attach(sprotoloader.load(2))
@@ -47,11 +79,5 @@ skynet.start(function()
 	skynet.dispatch("lua", function(session, source, command, ...)
 		local f = assert(CMD[command])
 		skynet.ret(skynet.pack(f(source, ...)))
-	end)
-
-	skynet.dispatch("client", function(_,_, msg)
-		-- the simple echo service
-		skynet.sleep(10)	-- sleep a while
-		skynet.ret(send_request "heartbeat")
 	end)
 end)
