@@ -58,7 +58,6 @@ skynet.register_protocol {
 			local ok, result  = pcall(request, ...)
 			if ok then
 				if result then
-					--send_package(result)
 					skynet.ret(result)
 				end
 			else
