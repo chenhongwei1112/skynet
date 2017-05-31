@@ -36,7 +36,7 @@ function CMD.afk(source)
 end
 
 function REQUEST:foobar()
-	return { ok = 1 }
+	return { ok = true }
 end
 
 local function request(name, args, response)
@@ -72,7 +72,6 @@ skynet.register_protocol {
 
 skynet.start(function()
 	host = sprotoloader.load(1):host "package"
-	send_request = host:attach(sprotoloader.load(2))
 
 	-- If you want to fork a work thread , you MUST do it in CMD.login
 	skynet.dispatch("lua", function(session, source, command, ...)
