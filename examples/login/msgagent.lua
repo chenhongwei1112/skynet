@@ -39,6 +39,10 @@ function REQUEST:foobar()
 	return { ok = true }
 end
 
+function REQUEST:heartbeat()
+	return { ok = true }
+end
+
 local function request(name, args, response)
 	local f = assert(REQUEST[name])
 	local r = f(args)
