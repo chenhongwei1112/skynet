@@ -682,6 +682,29 @@ function skynet.memlimit(bytes)
 	skynet.memlimit = nil	-- set only once
 end
 
+function skynet.invokeDelay(f, ti)
+	local function t()
+		if f then
+			f()
+		end
+	end
+ 	skynet.timeout(ti, t)
+ 	return function() f=nil end
+end
+
+function skynet.invokeRepeat(f, ti)
+ 	skynet.fork(function()
+ 	    while true do
+ 	    	if not f then
+ 	    		break
+ 	    	end
+ 	    	f()
+ 	    	skynet.sleep(ti)
+	    end
+	end)
+ 	return function() f=nil end
+end
+
 -- Inject internal debug framework
 local debug = require "skynet.debug"
 debug.init(skynet, {

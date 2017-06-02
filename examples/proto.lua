@@ -61,7 +61,16 @@ foobar 7 {
     what 0 : string
   }
   response {
-    ok 0 : integer
+    ok 0 : boolean
+  }
+}
+
+heartbeat 8 {
+  request {
+    what 0 : string
+  }
+  response {
+    ok 0 : boolean
   }
 }
 

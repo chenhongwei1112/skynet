@@ -182,26 +182,11 @@ function snax.reloadScript(fileName)
 end
 
 function snax.invokeDelay(f, ti)
-	local function t()
-		if f then
-			f()
-		end
-	end
- 	skynet.timeout(ti, t)
- 	return function() f=nil end
+ 	return skynet.invokeDelay(f, ti)
 end
 
 function snax.invokeRepeat(f, ti)
- 	skynet.fork(function()
- 	    while true do
- 	    	if not f then
- 	    		break
- 	    	end
- 	    	f()
- 	    	skynet.sleep(ti)
-	    end
-	end)
- 	return function() f=nil end
+ 	return skynet.invokeRepeat(f, ti)
 end
 
 
