@@ -261,8 +261,12 @@ while true do
 			send_request("get", { what = cmd })
 		elseif cmd == "addMoney" then
 			send_request("addMoney",{ money = 100})
-		elseif cmd == "hhh" then
-			send_request("heartbeat", { what = "BBBB" })
+		elseif cmd == "a1" then
+			send_request("request_msg")
+		elseif cmd == "a2" then
+			send_request("mytest1")
+		elseif cmd == "a3" then
+			send_request("mytest2")
 		elseif cmd == "test" then
 			send_request("foobar", { what = "BBBB" })
 		elseif cmd == "jinglian" then

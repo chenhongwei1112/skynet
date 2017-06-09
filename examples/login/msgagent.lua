@@ -42,22 +42,41 @@ end
 
 local temp1
 function REQUEST:foobar()
-	temp1= coroutine.running()
-	skynet.wait(temp1)
 	return { ok = 1 }
 end
 
 function REQUEST:heartbeat()
-	heartcount = heartcount + 5
-	skynet.wakeup(temp1)
 	return { ok = true }
 end
 
+local co_tbl = {}
+local data1 = 20
+local data2 = "fff"
+
+function REQUEST:mytest2()
+	local co = co_tbl[#co_tbl]
+	if not co then
+		return
+	end
+
+	data1 = data1 + 1
+	co_tbl[#co_tbl] = nil
+	skynet.wakeup(co)
+end
+
+
 local function request(name, args, response)
-	local f = assert(REQUEST[name])
-	local r = f(args)
-	if response then
-		return response(r)
+	if name == "mytest1" then
+		temp1= coroutine.running()
+		table.insert(co_tbl, temp1)
+		skynet.wait(temp1)
+		return send_request("player_join", {id = data1, account = data2})
+	else
+		local f = assert(REQUEST[name])
+		local r = f(args)
+		if response then
+			return response(r)
+		end
 	end
 end
 
@@ -87,6 +106,7 @@ skynet.register_protocol {
 local hearbeat_invoke
 skynet.start(function()
 	host = sprotoloader.load(1):host "package"
+	send_request = host:attach(sprotoloader.load(2))
 
 	-- If you want to fork a work thread , you MUST do it in CMD.login
 	skynet.dispatch("lua", function(session, source, command, ...)
