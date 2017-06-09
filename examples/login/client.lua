@@ -54,6 +54,16 @@ end
 
 local readline = unpack_f(unpack_line)
 
+
+local serverVersion = tonumber(readline())
+if serverVersion ~= 112 then
+	print("serverVersion erro")
+end
+
+print("serverVersion ok")
+
+writeline(fd, "ok")
+
 local challenge = crypt.base64decode(readline())
 
 local clientkey = crypt.randomkey()
@@ -68,7 +78,7 @@ writeline(fd, crypt.base64encode(hmac))
 local token = {
 	server = "sample",
 	user = "hello",
-	pass = "password",
+	pass = "123",
 }
 
 local function encode_token(token)
@@ -93,13 +103,6 @@ local subid = crypt.base64decode(string.sub(result, 5))
 print("login ok, subid=", subid)
 
 ----- connect to game server
-
-local function send_request(v, session)
-	local size = #v + 4
-	local package = string.pack(">I2", size)..v..string.pack(">I4", session)
-	socket.send(fd, package)
-	return v, session
-end
 
 local function recv_response(v)
 	local size = #v - 5
@@ -141,29 +144,170 @@ local hmac = crypt.hmac64(crypt.hashkey(handshake), secret)
 send_package(fd, handshake .. ":" .. crypt.base64encode(hmac))
 
 print(readpackage())
-print("===>",send_request(text,0))
--- don't recv response
--- print("<===",recv_response(readpackage()))
 
-print("disconnect")
-socket.close(fd)
+----------------------------------------------
 
-index = index + 1
+package.cpath = "luaclib/?.so"
+package.path = "lualib/?.lua;examples/?.lua"
 
-print("connect again")
-fd = assert(socket.connect("127.0.0.1", 8888))
-last = ""
+if _VERSION ~= "Lua 5.3" then
+	error "Use lua 5.3"
+end
 
-local handshake = string.format("%s@%s#%s:%d", crypt.base64encode(token.user), crypt.base64encode(token.server),crypt.base64encode(subid) , index)
-local hmac = crypt.hmac64(crypt.hashkey(handshake), secret)
+local socket = require "clientsocket"
+local proto = require "proto"
+local sproto = require "sproto"
 
-send_package(fd, handshake .. ":" .. crypt.base64encode(hmac))
+local host = sproto.new(proto.s2c):host "package"
+local request = host:attach(sproto.new(proto.c2s))
 
-print(readpackage())
-print("===>",send_request("fake",0))	-- request again (use last session 0, so the request message is fake)
-print("===>",send_request("again",1))	-- request again (use new session)
-print("<===",recv_response(readpackage()))
-print("<===",recv_response(readpackage()))
+local function unpack_package(text)
+	local size = #text
+	if size < 2 then
+		return nil, text
+	end
+	local s = text:byte(1) * 256 + text:byte(2)
+	if size < s+2 then
+		return nil, text
+	end
+
+	return text:sub(3,2+s), text:sub(3+s)
+end
+
+local function recv_package(last)
+	local result
+	result, last = unpack_package(last)
+	if result then
+		return result, last
+	end
+	local r = socket.recv(fd)
+	if not r then
+		return nil, last
+	end
+	if r == "" then
+		error "Server closed"
+	end
+	return unpack_package(last .. r)
+end
+
+local session = 0
+
+local function send_request(name, args)
+	session = session + 1
+	local v = request(name, args, session)
+	local size = #v + 4
+	local package = string.pack(">I2", size)..v..string.pack(">I4", session)
+	socket.send(fd, package)
+end
+
+local last = ""
+
+local function print_request(name, args)
+	print("REQUEST", name)
+	if args then
+		for k,v in pairs(args) do
+			print(k,v)
+		end
+	end
+end
+
+local function print_response(session, args)
+	print("RESPONSE", session)
+	if args then
+		for k,v in pairs(args) do
+			print(k,v)
+			if k == "items" then
+				for k, v in pairs( v ) do
+					print( k, v )
+					for k, v in pairs( v ) do
+						print( k, v )
+					end
+				end
+			end
+		end
+	end
+end
+
+local function print_package(t, ...)
+	if t == "REQUEST" then
+		print_request(...)
+	else
+		assert(t == "RESPONSE")
+		print_response(...)
+	end
+end
+
+local function dispatch_package()
+	while true do
+		local v
+		v, last = recv_package(last)
+		if not v then
+			break
+		end
+
+		local session = string.unpack(">I4", v, -4)
+		v = v:sub(1,-5)
+		print_package(host:dispatch(v))
+	end
+end
+
+while true do
+	dispatch_package()
+	local cmd = socket.readstdin()
+	if cmd then
+		if cmd == "quit" then
+			send_request("quit")
+		elseif cmd == "get" then
+			send_request("get", { what = cmd })
+		elseif cmd == "addMoney" then
+			send_request("addMoney",{ money = 100})
+		elseif cmd == "heartbeat" then
+			send_request("heartbeat", { what = "BBBB" })
+		elseif cmd == "jinglian" then
+			local datas = {}
+			for i = 1, 10 do
+				local data = {}
+				data.id = 1000 + i
+				data.param1 = 50000 + i
+				data.param2 = "AAAA"..i
+				table.insert( datas, data)
+			end
+			send_request("jinglian",{ items = datas})
+		end
+	else
+		socket.usleep(100)
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 print("disconnect")

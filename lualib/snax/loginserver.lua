@@ -53,6 +53,13 @@ local function launch_slave(auth_handler)
 		-- If the attacker send large package, close the socket
 		socket.limit(fd, 8192)
 
+		write("auth", fd, "112".."\n")
+
+		local checkVersion = assert_socket("auth", socket.readline(fd), fd)
+		if checkVersion ~= "ok" then
+			error "version not match"
+		end
+
 		local challenge = crypt.randomkey()
 		write("auth", fd, crypt.base64encode(challenge).."\n")
 
