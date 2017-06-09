@@ -39,12 +39,17 @@ function CMD.afk(source)
 	skynet.error(string.format("AFK"))
 end
 
+
+local temp1
 function REQUEST:foobar()
-	return { ok = true }
+	temp1= coroutine.running()
+	skynet.wait(temp1)
+	return { ok = 1 }
 end
 
 function REQUEST:heartbeat()
 	heartcount = heartcount + 5
+	skynet.wakeup(temp1)
 	return { ok = true }
 end
 

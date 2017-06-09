@@ -261,8 +261,10 @@ while true do
 			send_request("get", { what = cmd })
 		elseif cmd == "addMoney" then
 			send_request("addMoney",{ money = 100})
-		elseif cmd == "heartbeat" then
+		elseif cmd == "hhh" then
 			send_request("heartbeat", { what = "BBBB" })
+		elseif cmd == "test" then
+			send_request("foobar", { what = "BBBB" })
 		elseif cmd == "jinglian" then
 			local datas = {}
 			for i = 1, 10 do
