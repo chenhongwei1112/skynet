@@ -262,11 +262,9 @@ while true do
 		elseif cmd == "addMoney" then
 			send_request("addMoney",{ money = 100})
 		elseif cmd == "a1" then
-			send_request("request_msg")
+			send_request("sendSession")
 		elseif cmd == "a2" then
-			send_request("mytest1")
-		elseif cmd == "a3" then
-			send_request("mytest2")
+			send_request("mytest")
 		elseif cmd == "test" then
 			send_request("foobar", { what = "BBBB" })
 		elseif cmd == "jinglian" then

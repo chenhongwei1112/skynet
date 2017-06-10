@@ -197,6 +197,11 @@ info 27 {} # 调试
 
 request_msg 28 {}
 
+sendSession 29 {}
+
+mytest 30 {}
+
+
 ]]
 
 proto.s2c = sprotoparser.parse [[

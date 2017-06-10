@@ -39,8 +39,6 @@ function CMD.afk(source)
 	skynet.error(string.format("AFK"))
 end
 
-
-local temp1
 function REQUEST:foobar()
 	return { ok = 1 }
 end
@@ -49,28 +47,33 @@ function REQUEST:heartbeat()
 	return { ok = true }
 end
 
-local co_tbl = {}
-local data1 = 20
-local data2 = "fff"
+local hangupSessions = {}
+local hangupSessionData = {}
 
-function REQUEST:mytest2()
-	local co = co_tbl[#co_tbl]
-	if not co then
+local function sendPush(data)
+	if #hangupSessions == 0 then
+		error "no sesssions can use"
 		return
 	end
 
-	data1 = data1 + 1
-	co_tbl[#co_tbl] = nil
+	local co = hangupSessions[#hangupSessions]
+	hangupSessionData[co] = data
+	hangupSessions[#hangupSessions] = nil
 	skynet.wakeup(co)
 end
 
+function REQUEST:mytest()
+	sendPush(send_request("create_room_succ", {result = 1, room_id = 100}))
+end
 
 local function request(name, args, response)
-	if name == "mytest1" then
-		temp1= coroutine.running()
-		table.insert(co_tbl, temp1)
-		skynet.wait(temp1)
-		return send_request("player_join", {id = data1, account = data2})
+	if name == "sendSession" then
+		local co = coroutine.running()
+		table.insert(hangupSessions, co)
+		skynet.wait(co)
+		local data = hangupSessionData[co]
+		hangupSessionData[co] = nil
+		return data
 	else
 		local f = assert(REQUEST[name])
 		local r = f(args)
