@@ -1,4 +1,4 @@
-local socket = require "socket"
+local socket = require "skynet.socket"
 local skynet = require "skynet"
 
 local readbytes = socket.read
@@ -100,6 +100,10 @@ end
 
 function sockethelper.close(fd)
 	socket.close(fd)
+end
+
+function sockethelper.shutdown(fd)
+	socket.shutdown(fd)
 end
 
 return sockethelper

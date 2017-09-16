@@ -8,7 +8,7 @@ local pairs = pairs
 local pcall = pcall
 local table = table
 
-local profile = require "profile"
+local profile = require "skynet.profile"
 
 local coroutine_resume = profile.resume
 local coroutine_yield = profile.yield
@@ -357,6 +357,7 @@ function skynet.getenv(key)
 end
 
 function skynet.setenv(key, value)
+	assert(c.command("GETENV",key) == nil, "Can't setenv exist key : " .. key)
 	c.command("SETENV",key .. " " ..value)
 end
 

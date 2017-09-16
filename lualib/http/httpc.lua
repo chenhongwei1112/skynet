@@ -2,7 +2,7 @@ local skynet = require "skynet"
 local socket = require "http.sockethelper"
 local url = require "http.url"
 local internal = require "http.internal"
-local dns = require "dns"
+local dns = require "skynet.dns"
 local string = string
 local table = table
 
@@ -104,17 +104,13 @@ function httpc.request(method, host, url, recvheader, header, content)
 	if timeout then
 		skynet.timeout(timeout, function()
 			if not finish then
-				local temp = fd
-				fd = nil
-				socket.close(temp)
+				socket.shutdown(fd)	-- shutdown the socket fd, need close later.
 			end
 		end)
 	end
 	local ok , statuscode, body = pcall(request, fd,method, host, url, recvheader, header, content)
 	finish = true
-	if fd then	-- may close by skynet.timeout
-		socket.close(fd)
-	end
+	socket.close(fd)
 	if ok then
 		return statuscode, body
 	else
