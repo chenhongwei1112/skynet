@@ -15,11 +15,14 @@ local user_login = {}
 
 function server.auth_handler(token)
 	-- the token is base64(user)@base64(server):base64(password)
-	local user, server, password = token:match("([^@]+)@([^:]+):(.+)")
+	local user, server, password, version = token:match("([^@]+)@([^:]+):(.+)-(.+)")
 	user = crypt.base64decode(user)
 	server = crypt.base64decode(server)
 	password = crypt.base64decode(password)
-	assert(password == "123", "Invalid password")
+	version = crypt.base64decode(version)
+
+	assert(password == "password", "401")
+	assert(version == "100", "402")
 	return server, user
 end
 

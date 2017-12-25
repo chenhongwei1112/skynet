@@ -54,16 +54,6 @@ end
 
 local readline = unpack_f(unpack_line)
 
-
-local serverVersion = tonumber(readline())
-if serverVersion ~= 112 then
-	print("serverVersion erro")
-end
-
-print("serverVersion ok")
-
-writeline(fd, "ok")
-
 local challenge = crypt.base64decode(readline())
 
 local clientkey = crypt.randomkey()
@@ -79,13 +69,15 @@ local token = {
 	server = "sample",
 	user = "hello",
 	pass = "123",
+	version = "101",
 }
 
 local function encode_token(token)
-	return string.format("%s@%s:%s",
+	return string.format("%s@%s:%s-%s",
 		crypt.base64encode(token.user),
 		crypt.base64encode(token.server),
-		crypt.base64encode(token.pass))
+		crypt.base64encode(token.pass),
+		crypt.base64encode(token.version))
 end
 
 local etoken = crypt.desencode(secret, encode_token(token))

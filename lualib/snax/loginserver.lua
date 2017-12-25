@@ -53,13 +53,6 @@ local function launch_slave(auth_handler)
 		-- If the attacker send large package, close the socket
 		socket.limit(fd, 8192)
 
-		write("auth", fd, "112".."\n")
-
-		local checkVersion = assert_socket("auth", socket.readline(fd), fd)
-		if checkVersion ~= "ok" then
-			error "version not match"
-		end
-
 		local challenge = crypt.randomkey()
 		write("auth", fd, crypt.base64encode(challenge).."\n")
 
@@ -128,9 +121,8 @@ local function accept(conf, s, fd, addr)
 	-- slave will accept(start) fd, so we can write to fd later
 
 	if not ok then
-		if ok ~= nil then
-			write("response 401", fd, "401 Unauthorized\n")
-		end
+		err = server:match(".+: (.+)")
+		write("response", fd, err.."\n")
 		error(server)
 	end
 
