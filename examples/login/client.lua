@@ -69,7 +69,7 @@ local token = {
 	server = "sample",
 	user = "hello",
 	pass = "123",
-	version = "101",
+	version = "100",
 }
 
 local function encode_token(token)
@@ -146,7 +146,6 @@ if _VERSION ~= "Lua 5.3" then
 	error "Use lua 5.3"
 end
 
-local socket = require "clientsocket"
 local proto = require "proto"
 local sproto = require "sproto"
 

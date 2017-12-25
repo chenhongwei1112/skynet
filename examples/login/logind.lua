@@ -21,7 +21,7 @@ function server.auth_handler(token)
 	password = crypt.base64decode(password)
 	version = crypt.base64decode(version)
 
-	assert(password == "password", "401")
+	assert(password == "123", "401")
 	assert(version == "100", "402")
 	return server, user
 end
