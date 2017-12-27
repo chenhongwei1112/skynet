@@ -15,6 +15,10 @@ local server_list = {}
 local user_online = {}
 local user_login = {}
 
+-- 错误码说明:
+-- 410 服务器无法获取当前版本号,一般是nginx异常
+-- 411 客户端版本不对
+
 function server.auth_handler(token)
 	-- the token is base64(user)@base64(server):base64(password)
 	local user, server, password, version = token:match("([^@]+)@([^:]+):(.+)-(.+)")
@@ -25,9 +29,10 @@ function server.auth_handler(token)
 	
 	version = crypt.base64decode(version)
 	local status, cur_version = httpc.get("127.0.0.1:8080", '/VersionFile')
+	assert(status == 200, "410")
 	cur_version = cur_version:match(".-([0-9.]+).-")
-	assert(version == cur_version, "402")
-	
+	assert(version == cur_version, "411")
+
 	return server, user
 end
 

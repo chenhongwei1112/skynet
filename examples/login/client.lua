@@ -88,8 +88,10 @@ local result = readline()
 print(result)
 local code = tonumber(string.sub(result, 1, 3))
 
-if code == 402 then
-	assert(false, "Bad Version")
+if code == 410 then
+	assert(false, "server cannot get patch version")
+elseif code == 411 then
+	assert(false, "bad Version")
 end
 
 assert(code == 200)
