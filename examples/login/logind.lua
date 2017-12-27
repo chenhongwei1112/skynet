@@ -2,6 +2,8 @@ local login = require "snax.loginserver"
 local crypt = require "skynet.crypt"
 local skynet = require "skynet"
 
+local httpc = require "http.httpc"
+
 local server = {
 	host = "0.0.0.0",
 	port = 8001,
@@ -19,10 +21,13 @@ function server.auth_handler(token)
 	user = crypt.base64decode(user)
 	server = crypt.base64decode(server)
 	password = crypt.base64decode(password)
-	version = crypt.base64decode(version)
-
 	assert(password == "123", "401")
-	assert(version == "100", "402")
+	
+	version = crypt.base64decode(version)
+	local status, cur_version = httpc.get("127.0.0.1:8080", '/VersionFile')
+	cur_version = cur_version:match(".-([0-9.]+).-")
+	assert(version == cur_version, "402")
+	
 	return server, user
 end
 

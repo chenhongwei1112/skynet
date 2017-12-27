@@ -69,7 +69,7 @@ local token = {
 	server = "sample",
 	user = "hello",
 	pass = "123",
-	version = "100",
+	version = "1.0.2",
 }
 
 local function encode_token(token)
@@ -87,6 +87,11 @@ writeline(fd, crypt.base64encode(etoken))
 local result = readline()
 print(result)
 local code = tonumber(string.sub(result, 1, 3))
+
+if code == 402 then
+	assert(false, "Bad Version")
+end
+
 assert(code == 200)
 socket.close(fd)
 
