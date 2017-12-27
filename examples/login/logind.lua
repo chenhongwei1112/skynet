@@ -27,11 +27,13 @@ function server.auth_handler(token)
 	password = crypt.base64decode(password)
 	assert(password == "123", "401")
 	
-	version = crypt.base64decode(version)
-	local status, cur_version = httpc.get("127.0.0.1:8080", '/VersionFile')
-	assert(status == 200, "410")
-	cur_version = cur_version:match(".-([0-9.]+).-")
-	assert(version == cur_version, "411")
+	if skynet.getenv("neiwang") then
+		version = crypt.base64decode(version)
+		local status, cur_version = httpc.get("127.0.0.1:8080", '/VersionFile')
+		assert(status == 200, "410")
+		cur_version = cur_version:match(".-([0-9.]+).-")
+		assert(version == cur_version, "411")
+	end
 
 	return server, user
 end
