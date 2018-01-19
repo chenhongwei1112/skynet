@@ -38,6 +38,7 @@
 #define PRIORITY_LOW 1
 
 #define HASH_ID(id) (((unsigned)id) % MAX_SOCKET)
+#define ID_TAG16(id) ((id>>MAX_SOCKET_P) & 0xffff)
 
 #define PROTOCOL_TCP 0
 #define PROTOCOL_UDP 1
@@ -78,6 +79,7 @@ struct socket {
 	struct wb_list high;
 	struct wb_list low;
 	int64_t wb_size;
+	volatile uint32_t sending;
 	int fd;
 	int id;
 	uint8_t protocol;
@@ -452,6 +454,7 @@ new_fd(struct socket_server *ss, int id, int fd, int protocol, uintptr_t opaque,
 
 	s->id = id;
 	s->fd = fd;
+	s->sending = ID_TAG16(id) << 16 | 0;
 	s->protocol = protocol;
 	s->p.size = MIN_READ_BUFFER;
 	s->opaque = opaque;
@@ -698,6 +701,8 @@ send_buffer_(struct socket_server *ss, struct socket *s, struct socket_lock *l, 
 				raise_uncomplete(s);
 				return -1;
 			}
+			if (s->low.head)
+				return -1;
 		} 
 		// step 4
 		assert(send_buffer_empty(s) && s->wb_size == 0);
@@ -879,8 +884,8 @@ _failed:
 }
 
 static inline int
-nomore_send_data(struct socket *s) {
-	return send_buffer_empty(s) && s->dw_buffer == NULL;
+nomore_sending_data(struct socket *s) {
+	return send_buffer_empty(s) && s->dw_buffer == NULL && (s->sending & 0xffff) == 0;
 }
 
 static int
@@ -896,13 +901,13 @@ close_socket(struct socket_server *ss, struct request_close *request, struct soc
 	}
 	struct socket_lock l;
 	socket_lock_init(s, &l);
-	if (!nomore_send_data(s)) {
+	if (!nomore_sending_data(s)) {
 		int type = send_buffer(ss,s,&l,result);
-		// type : -1 or SOCKET_WARNING or SOCKET_CLOSE, SOCKET_WARNING means nomore_send_data
+		// type : -1 or SOCKET_WARNING or SOCKET_CLOSE, SOCKET_WARNING means nomore_sending_data
 		if (type != -1 && type != SOCKET_WARNING)
 			return type;
 	}
-	if (request->shutdown || nomore_send_data(s)) {
+	if (request->shutdown || nomore_sending_data(s)) {
 		force_close(ss,s,&l,result);
 		result->id = id;
 		result->opaque = request->opaque;
@@ -1050,6 +1055,35 @@ set_udp_address(struct socket_server *ss, struct request_setudp *request, struct
 	return -1;
 }
 
+static inline void
+inc_sending_ref(struct socket *s, int id) {
+	for (;;) {
+		uint32_t sending = s->sending;
+		if ((sending >> 16) == ID_TAG16(id)) {
+			if ((sending & 0xffff) == 0xffff) {
+				// s->sending may overflow (rarely), so busy waiting here for socket thread dec it. see issue #794
+				continue;
+			}
+			// inc sending only matching the same socket id
+			if (ATOM_CAS(&s->sending, sending, sending + 1))
+				return;
+			// atom inc failed, retry
+		} else {
+			// socket id changed, just return
+			return;
+		}
+	}
+}
+
+static inline void
+dec_sending_ref(struct socket_server *ss, int id) {
+	struct socket * s = &ss->slot[HASH_ID(id)];
+	if (s->id == id) {
+		assert((s->sending & 0xffff) != 0);
+		ATOM_DEC(&s->sending);
+	}
+}
+
 // return type
 static int
 ctrl_cmd(struct socket_server *ss, struct socket_message *result) {
@@ -1080,9 +1114,13 @@ ctrl_cmd(struct socket_server *ss, struct socket_message *result) {
 		result->data = NULL;
 		return SOCKET_EXIT;
 	case 'D':
-		return send_socket(ss, (struct request_send *)buffer, result, PRIORITY_HIGH, NULL);
-	case 'P':
-		return send_socket(ss, (struct request_send *)buffer, result, PRIORITY_LOW, NULL);
+	case 'P': {
+		int priority = (type == 'D') ? PRIORITY_HIGH : PRIORITY_LOW;
+		struct request_send * request = (struct request_send *) buffer;
+		int ret = send_socket(ss, request, result, priority, NULL);
+		dec_sending_ref(ss, request->id);
+		return ret;
+	}
 	case 'A': {
 		struct request_send_udp * rsu = (struct request_send_udp *)buffer;
 		return send_socket(ss, &rsu->send, result, PRIORITY_HIGH, rsu->address);
@@ -1225,7 +1263,7 @@ report_connect(struct socket_server *ss, struct socket *s, struct socket_lock *l
 		result->opaque = s->opaque;
 		result->id = s->id;
 		result->ud = 0;
-		if (nomore_send_data(s)) {
+		if (nomore_sending_data(s)) {
 			sp_write(ss->event_fd, s->fd, s, false);
 		}
 		union sockaddr_all u;
@@ -1459,7 +1497,7 @@ socket_server_connect(struct socket_server *ss, uintptr_t opaque, const char * a
 
 static inline int
 can_direct_write(struct socket *s, int id) {
-	return s->id == id && nomore_send_data(s) && s->type == SOCKET_TYPE_CONNECTED && s->udpconnecting == 0;
+	return s->id == id && nomore_sending_data(s) && s->type == SOCKET_TYPE_CONNECTED && s->udpconnecting == 0;
 }
 
 // return -1 when error, 0 when success
@@ -1511,6 +1549,8 @@ socket_server_send(struct socket_server *ss, int id, const void * buffer, int sz
 		socket_unlock(&l);
 	}
 
+	inc_sending_ref(s, id);
+
 	struct request_package request;
 	request.u.send.id = id;
 	request.u.send.sz = sz;
@@ -1528,6 +1568,8 @@ socket_server_send_lowpriority(struct socket_server *ss, int id, const void * bu
 		free_buffer(ss, buffer, sz);
 		return -1;
 	}
+
+	inc_sending_ref(s, id);
 
 	struct request_package request;
 	request.u.send.id = id;
