@@ -4,6 +4,22 @@
 		"selected_items":
 		[
 			[
+				"for",
+				"fori\tfor i,v in ipairs()"
+			],
+			[
+				"con",
+				"conns"
+			],
+			[
+				"db",
+				"db_name"
+			],
+			[
+				"db_",
+				"db_name"
+			],
+			[
 				"cm",
 				"cmd2"
 			]
@@ -11,14 +27,6 @@
 	},
 	"buffers":
 	[
-		{
-			"file": "examples/login/gated.lua",
-			"settings":
-			{
-				"buffer_size": 2596,
-				"line_ending": "Windows"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -28,7 +36,7 @@
 	"command_palette":
 	{
 		"height": 170.0,
-		"last_filter": "sslua",
+		"last_filter": "",
 		"selected_items":
 		[
 			[
@@ -80,37 +88,39 @@
 	},
 	"expanded_folders":
 	[
-		"/E/code/xycard/skynet_chenhw",
-		"/E/code/xycard/skynet_chenhw/examples",
-		"/E/code/xycard/skynet_chenhw/service",
-		"/E/code/xycard/skynet_chenhw/service-src",
-		"/E/code/xycard/skynet_chenhw/skynet-src"
+		"/E/code/xycard/skynet_chenhw"
 	],
 	"file_history":
 	[
+		"/E/code/xycard/skynet_chenhw/examples/xyconfig/db_config.lua",
+		"/E/code/xycard/skynet_chenhw/examples/test_db.lua",
+		"/E/code/xycard/skynet_chenhw/examples/config.path",
+		"/E/code/xycard/skynet_chenhw/examples/config",
+		"/E/code/xycard/skynet_chenhw/test/testmongodb.lua",
+		"/E/code/xycard/skynet_chenhw/lualib/skynet/db/mongo.lua",
+		"/E/code/xycard/skynet_chenhw/examples/testservice.lua",
+		"/E/code/xycard/skynet_chenhw/examples/game_config.lua",
+		"/E/code/xycard/skynet_chenhw/examples/config.lua",
+		"/E/code/xycard/skynet_chenhw/examples/main.lua",
+		"/E/code/xycard/skynet_chenhw/sftp-config.json",
+		"/E/code/xycard/skynet_chenhw/examples/login/gated.lua",
 		"/E/code/xycard/skynet_chenhw/lualib/snax/loginserver.lua",
 		"/E/code/xycard/skynet_chenhw/examples/login/msgagent.lua",
 		"/E/code/xycard/skynet_chenhw/examples/login/logind.lua",
 		"/E/code/xycard/skynet_chenhw/lualib/http/httpc.lua",
 		"/E/code/xycard/skynet_chenhw/examples/login/client.lua",
-		"/E/code/xycard/skynet_chenhw/sftp-config.json",
 		"/E/code/xycard/skynet_chenhw/examples/config.login",
 		"/E/code/xycard/skynet_chenhw/lualib-src/lua-clientsocket.c",
 		"/E/code/xycard/skynet_chenhw/examples/client.lua",
 		"/E/code/xycard/skynet_chenhw/examples/myservice1.lua",
-		"/E/code/xycard/skynet_chenhw/examples/main.lua",
-		"/E/code/xycard/skynet_chenhw/examples/testservice.lua",
 		"/E/code/xycard/skynet_chenhw/lualib/skynet/snax.lua",
 		"/E/code/xycard/skynet_chenhw/lualib-src/lua-mongo.c",
-		"/E/code/xycard/skynet_chenhw/lualib/skynet/db/mongo.lua",
-		"/E/code/xycard/skynet_chenhw/test/testmongodb.lua",
 		"/E/code/xycard/skynet_chenhw/lualib/compat10/mongo.lua",
 		"/E/code/xycard/skynet_chenhw/examples/myservice2.lua",
 		"/E/code/xycard/skynet_chenhw/lualib/snax/msgserver.lua",
 		"/E/code/xycard/skynet_chenhw/lualib/snax/gateserver.lua",
 		"/E/code/xycard/skynet_chenhw/examples/watchdog.lua",
 		"/E/code/xycard/skynet_chenhw/service/gate.lua",
-		"/E/code/xycard/skynet_chenhw/examples/config",
 		"/E/code/xycard/skynet_chenhw/service/console.lua",
 		"/E/code/xycard/skynet_chenhw/examples/myservice1_patch.lua",
 		"/E/code/xycard/skynet_chenhw/service/debug_console.lua",
@@ -138,7 +148,7 @@
 	],
 	"find":
 	{
-		"height": 32.0
+		"height": 45.0
 	},
 	"find_in_files":
 	{
@@ -153,6 +163,19 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"db_name",
+			"db_host",
+			"bson",
+			"create_pools",
+			"db",
+			"host",
+			"cursor",
+			"close",
+			"kill",
+			"close",
+			"findand",
+			"testmongodb",
+			"bson",
 			"print",
 			"httpc",
 			"socket",
@@ -233,41 +256,8 @@
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "examples/login/gated.lua",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 2596,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								2596,
-								2596
-							]
-						],
-						"settings":
-						{
-							"incomplete_sync": null,
-							"remote_loading": false,
-							"synced": false,
-							"syntax": "Packages/Lua/Lua.sublime-syntax",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -324,8 +314,36 @@
 		"selected_items":
 		[
 			[
+				"config.pa",
+				"examples\\config.path"
+			],
+			[
 				"conf",
-				"examples\\config.login"
+				"examples\\config"
+			],
+			[
+				"game",
+				"examples\\game_config.lua"
+			],
+			[
+				"test",
+				"examples\\testservice.lua"
+			],
+			[
+				"mongo",
+				"lualib\\skynet\\db\\mongo.lua"
+			],
+			[
+				"testmong",
+				"test\\testmongodb.lua"
+			],
+			[
+				"test_db",
+				"examples\\test_db.lua"
+			],
+			[
+				"main",
+				"examples\\main.lua"
 			],
 			[
 				"cli",
@@ -352,20 +370,12 @@
 				"lualib\\snax\\loginserver.lua"
 			],
 			[
-				"mongo",
-				"lualib-src\\lua-mongo.c"
-			],
-			[
 				"mong",
 				"lualib\\skynet\\db\\mongo.lua"
 			],
 			[
 				"my",
 				"examples\\myservice1.lua"
-			],
-			[
-				"main",
-				"examples\\main.lua"
 			],
 			[
 				"myservice2",

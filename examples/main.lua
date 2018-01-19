@@ -29,5 +29,8 @@ skynet.start(function()
 
 	-- local echo_reload = skynet.newservice("echo_reload")
 
+	local test_db = snax.uniqueservice("test_db")
+
+
 	skynet.exit()
 end)
