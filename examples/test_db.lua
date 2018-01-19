@@ -63,9 +63,24 @@ function CMD:update(coll, selector, data)
 	cur_db[coll]:update(selector, update_doc, false, true)
 end
 
-function CMD:find(coll, selector)
+function CMD:find(coll, selector, opt)
 	local cur_db = self:getConn()
 	local cursor = cur_db[coll]:find(selector)
+
+	if opt then
+		if opt.sort then
+			cursor:sort(opt.sort)
+		end
+
+		if opt.skip then
+			cursor:skip(opt.skip)
+		end
+
+		if opt.limit then
+			cursor:limit(opt.limit)
+		end
+	end
+
 	local datas = {}
 	while cursor:hasNext() do
 		local cur_obj = cursor:next()
@@ -90,7 +105,7 @@ function init( ... )
 	-- for i=1,10 do
 	-- 	local data = {}
 	-- 	data.name = "小王"..i
-	-- 	data.age = 100
+	-- 	data.age = i
 	-- 	table.insert(datas, data)
 	-- end
 	-- CMD:insertBatch("test_ddd", datas)
@@ -99,9 +114,13 @@ function init( ... )
 	-- CMD:update("test_ddd", {age = 666}, {age = 777})
 	
 	-- 查找
-	local datas = CMD:find("test_ddd", {age = 444})
+	local opt = {}
+	opt.sort = {age = -1, money = -1}
+	opt.skip = 3
+	opt.limit = 5
+	local datas = CMD:find("test_ddd", {}, opt)
 	for i, v in ipairs(	datas) do
-		print(i,v)
+		print("ffffffffffffffff", i,v.age)
 	end
 
 	-- db[db_name].testdb:dropIndex("*")
