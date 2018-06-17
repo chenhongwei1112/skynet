@@ -69,7 +69,7 @@ local token = {
 	server = "sample",
 	user = "hello",
 	pass = "123",
-	version = "1.0.2",
+	version = "1.0.1",
 }
 
 local function encode_token(token)

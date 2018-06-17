@@ -4,6 +4,8 @@ local skynet = require "skynet"
 
 local httpc = require "http.httpc"
 
+local json = require "json"
+
 local server = {
 	host = "0.0.0.0",
 	port = 8001,
@@ -29,10 +31,10 @@ function server.auth_handler(token)
 	
 	if skynet.getenv("neiwang") then
 		version = crypt.base64decode(version)
-		local status, cur_version = httpc.get("127.0.0.1:8080", '/VersionFile')
+		local status, cur_version = httpc.get("127.0.0.1:8080", '/file_ver.json')
 		assert(status == 200, "410")
-		cur_version = cur_version:match(".-([0-9.]+).-")
-		assert(version == cur_version, "411")
+		local data = json.decode(cur_version)
+		assert(data.AppVersion == version, "411")
 	end
 
 	return server, user
