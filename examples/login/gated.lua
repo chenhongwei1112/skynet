@@ -79,7 +79,7 @@ end
 
 -- call by self (when recv a request from client)
 function server.request_handler(username, msg)
-	print("-----------request_handler----------------------------")
+	-- print("-----------request_handler----------------------------")
 	local u = username_map[username]
 	return skynet.tostring(skynet.rawcall(u.agent, "client", msg))
 end
