@@ -1,0 +1,26 @@
+{
+    "files.exclude": {
+        "3rd" : true,
+        // "examples" : true,
+        "lualib" : true,
+        "lualib-src" : true,
+        "service" : true,
+        "service-src" : true,
+        "skynet-src" : true,
+        // "test" : true,
+        ".gitmodules" : true,
+        "platform.mk" : true,
+        "make_skynet.sh" : true,
+        "Makefile" : true,
+
+        ".gitignore" : true,
+        "HISTORY.md" : true,
+        "LICENSE" : true,
+        "README.md" : true,
+        "PJ.sublime-project" : true,
+        "PJ.sublime-workspace" : true,
+        "sftp-config.json" : true,
+
+        ".vscode" : true,
+    },
+}
