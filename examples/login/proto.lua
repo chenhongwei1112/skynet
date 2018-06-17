@@ -304,7 +304,7 @@ player_gang 14 {
   request {
     p_id 0 : integer
     mj_id 1 : integer
-  } 
+  }
 }
 
 .Player_Score{

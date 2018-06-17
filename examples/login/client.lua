@@ -81,7 +81,6 @@ local function encode_token(token)
 end
 
 local etoken = crypt.desencode(secret, encode_token(token))
-local b = crypt.base64encode(etoken)
 writeline(fd, crypt.base64encode(etoken))
 
 local result = readline()
@@ -103,12 +102,6 @@ print("login ok, subid=", subid)
 
 ----- connect to game server
 
-local function recv_response(v)
-	local size = #v - 5
-	local content, ok, session = string.unpack("c"..tostring(size).."B>I4", v)
-	return ok ~=0 , content, session
-end
-
 local function unpack_package(text)
 	local size = #text
 	if size < 2 then
@@ -129,16 +122,19 @@ local function send_package(fd, pack)
 	socket.send(fd, package)
 end
 
-local text = "echo"
 local index = 1
 
 print("connect")
 fd = assert(socket.connect("127.0.0.1", 8888))
 last = ""
 
-local handshake = string.format("%s@%s#%s:%d", crypt.base64encode(token.user), crypt.base64encode(token.server),crypt.base64encode(subid) , index)
-local hmac = crypt.hmac64(crypt.hashkey(handshake), secret)
+local handshake = string.format("%s@%s#%s:%d",
+	crypt.base64encode(token.user),
+	crypt.base64encode(token.server),
+	crypt.base64encode(subid),
+	index)
 
+hmac = crypt.hmac64(crypt.hashkey(handshake), secret)
 
 send_package(fd, handshake .. ":" .. crypt.base64encode(hmac))
 
@@ -158,19 +154,6 @@ local sproto = require "sproto"
 
 local host = sproto.new(proto.s2c):host "package"
 local request = host:attach(sproto.new(proto.c2s))
-
-local function unpack_package(text)
-	local size = #text
-	if size < 2 then
-		return nil, text
-	end
-	local s = text:byte(1) * 256 + text:byte(2)
-	if size < s+2 then
-		return nil, text
-	end
-
-	return text:sub(3,2+s), text:sub(3+s)
-end
 
 local function recv_package(last)
 	local result
@@ -198,7 +181,7 @@ local function send_request(name, args)
 	socket.send(fd, package)
 end
 
-local last = ""
+last = ""
 
 local function print_request(name, args)
 	print("REQUEST", name)
@@ -243,7 +226,6 @@ local function dispatch_package()
 			break
 		end
 
-		local session = string.unpack(">I4", v, -4)
 		v = v:sub(1,-5)
 		print_package(host:dispatch(v))
 	end
@@ -299,19 +281,5 @@ end
 
 
 ------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
 print("disconnect")
 socket.close(fd)
-
