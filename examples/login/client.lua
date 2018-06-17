@@ -226,7 +226,7 @@ local function dispatch_package()
 			break
 		end
 
-		v = v:sub(1,-5)
+		v = v:sub(1, -6)
 		print_package(host:dispatch(v))
 	end
 end
