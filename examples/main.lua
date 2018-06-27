@@ -2,6 +2,8 @@ local skynet = require "skynet"
 local sprotoloader = require "sprotoloader"
 local snax = require "skynet.snax"
 
+local hello = require "client.hello"
+
 local max_client = 64
 
 skynet.start(function()
@@ -17,6 +19,8 @@ skynet.start(function()
 		nodelay = true,
 	})
 	skynet.error("Watchdog listen on", 8888)
+
+	print("3333333333333333333", hello.speak("22222"))
 
 	local testservice = snax.uniqueservice("testservice")
 
