@@ -43,6 +43,7 @@
 #define PROTOCOL_TCP 0
 #define PROTOCOL_UDP 1
 #define PROTOCOL_UDPv6 2
+#define PROTOCOL_UNKNOWN 255
 
 #define UDP_ADDRESS_SIZE 19	// ipv6 128bit + port 16bit + 1 byte type
 
@@ -303,6 +304,7 @@ reserve_id(struct socket_server *ss) {
 		if (s->type == SOCKET_TYPE_INVALID) {
 			if (ATOM_CAS(&s->type, SOCKET_TYPE_INVALID, SOCKET_TYPE_RESERVE)) {
 				s->id = id;
+				s->protocol = PROTOCOL_UNKNOWN;
 				// socket_server_udp_connect may inc s->udpconncting directly (from other thread, before new_fd), 
 				// so reset it to 0 here rather than in new_fd.
 				s->udpconnecting = 0;
@@ -600,12 +602,26 @@ udp_socket_address(struct socket *s, const uint8_t udp_address[UDP_ADDRESS_SIZE]
 	return 0;
 }
 
+static void
+drop_udp(struct socket_server *ss, struct socket *s, struct wb_list *list, struct write_buffer *tmp) {
+	s->wb_size -= tmp->sz;
+	list->head = tmp->next;
+	if (list->head == NULL)
+		list->tail = NULL;
+	write_buffer_free(ss,tmp);
+}
+
 static int
 send_list_udp(struct socket_server *ss, struct socket *s, struct wb_list *list, struct socket_message *result) {
 	while (list->head) {
 		struct write_buffer * tmp = list->head;
 		union sockaddr_all sa;
 		socklen_t sasz = udp_socket_address(s, tmp->udp_address, &sa);
+		if (sasz == 0) {
+			fprintf(stderr, "socket-server : udp (%d) type mismatch.\n", s->id);
+			drop_udp(ss, s, list, tmp);
+			return -1;
+		}
 		int err = sendto(s->fd, tmp->ptr, tmp->sz, 0, &sa.s, sasz);
 		if (err < 0) {
 			switch(errno) {
@@ -614,16 +630,8 @@ send_list_udp(struct socket_server *ss, struct socket *s, struct wb_list *list, 
 				return -1;
 			}
 			fprintf(stderr, "socket-server : udp (%d) sendto error %s.\n",s->id, strerror(errno));
+			drop_udp(ss, s, list, tmp);
 			return -1;
-/*			// ignore udp sendto error
-			
-			result->opaque = s->opaque;
-			result->id = s->id;
-			result->ud = 0;
-			result->data = NULL;
-
-			return SOCKET_ERR;
-*/
 		}
 
 		s->wb_size -= tmp->sz;
@@ -828,6 +836,12 @@ send_socket(struct socket_server *ss, struct request_send * request, struct sock
 			}
 			union sockaddr_all sa;
 			socklen_t sasz = udp_socket_address(s, udp_address, &sa);
+			if (sasz == 0) {
+				// udp type mismatch, just drop it.
+				fprintf(stderr, "socket-server: udp socket (%d) type mistach.\n", id);
+				so.free_func(request->buffer);
+				return -1;
+			}
 			int n = sendto(s->fd, so.buffer, so.sz, 0, &sa.s, sasz);
 			if (n != so.sz) {
 				append_sendbuffer_udp(ss,s,priority,request,udp_address);
@@ -1057,6 +1071,8 @@ set_udp_address(struct socket_server *ss, struct request_setudp *request, struct
 
 static inline void
 inc_sending_ref(struct socket *s, int id) {
+	if (s->protocol != PROTOCOL_TCP)
+		return;
 	for (;;) {
 		uint32_t sending = s->sending;
 		if ((sending >> 16) == ID_TAG16(id)) {
@@ -1078,7 +1094,8 @@ inc_sending_ref(struct socket *s, int id) {
 static inline void
 dec_sending_ref(struct socket_server *ss, int id) {
 	struct socket * s = &ss->slot[HASH_ID(id)];
-	if (s->id == id) {
+	// Notice: udp may inc sending while type == SOCKET_TYPE_RESERVE
+	if (s->id == id && s->protocol == PROTOCOL_TCP) {
 		assert((s->sending & 0xffff) != 0);
 		ATOM_DEC(&s->sending);
 	}
@@ -1524,6 +1541,12 @@ socket_server_send(struct socket_server *ss, int id, const void * buffer, int sz
 			} else {
 				union sockaddr_all sa;
 				socklen_t sasz = udp_socket_address(s, s->p.udp_address, &sa);
+				if (sasz == 0) {
+					fprintf(stderr, "socket-server : set udp (%d) address first.\n", id);
+					socket_unlock(&l);
+					so.free_func((void *)buffer);
+					return -1;
+				}
 				n = sendto(s->fd, so.buffer, so.sz, 0, &sa.s, sasz);
 			}
 			if (n<0) {
@@ -1791,6 +1814,11 @@ socket_server_udp_send(struct socket_server *ss, int id, const struct socket_udp
 			send_object_init(ss, &so, (void *)buffer, sz);
 			union sockaddr_all sa;
 			socklen_t sasz = udp_socket_address(s, udp_address, &sa);
+			if (sasz == 0) {
+				socket_unlock(&l);
+				so.free_func((void *)buffer);
+				return -1;
+			}
 			int n = sendto(s->fd, so.buffer, so.sz, 0, &sa.s, sasz);
 			if (n >= 0) {
 				// sendto succ
