@@ -13,16 +13,20 @@ local internal_id = 0
 -- call by login server
 function server.login_handler(uid, secret)
 	print("-----------login_handler----------------------------")
-	if users[uid] then
-		error(string.format("%s is already login", uid))
-	end
-
+	
 	internal_id = internal_id + 1
 	local id = internal_id	-- don't use internal_id directly
 	local username = msgserver.username(uid, id, servername)
-
+	
 	-- you can use a pool to alloc new agent
-	local agent = skynet.newservice "msgagent"
+	local agent
+	local cache_user = users[uid]
+	if cache_user then
+		agent = cache_user.agent
+	else
+		agent = skynet.newservice "msgagent"
+	end
+	
 	local u = {
 		username = username,
 		agent = agent,
@@ -61,10 +65,12 @@ function server.kick_handler(uid, subid)
 	print("-----------kick_handler----------------------------")
 	local u = users[uid]
 	if u then
-		local username = msgserver.username(uid, subid, servername)
-		assert(u.username == username)
-		-- NOTICE: logout may call skynet.exit, so you should use pcall.
-		pcall(skynet.call, u.agent, "lua", "logout")
+		msgserver.logout(u.username)
+		username_map[u.username] = nil
+		skynet.call(loginservice, "lua", "logout",uid, subid)
+	-- 	assert(u.username == username)
+	-- 	-- NOTICE: logout may call skynet.exit, so you should use pcall.
+	-- 	pcall(skynet.call, u.agent, "lua", "logout")
 	end
 end
 

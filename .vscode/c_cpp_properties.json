@@ -3,7 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "D:\\chenhw\\code\\lua-5.3.4\\src"
             ],
             "defines": [
                 "_DEBUG",

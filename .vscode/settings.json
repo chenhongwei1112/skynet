@@ -21,6 +21,8 @@
     "files.associations": {
         "*.lua.txt": "lua",
         "string.h": "c",
-        "stdint.h": "c"
+        "stdint.h": "c",
+        "types.h": "c",
+        "pthread.h": "c"
     },
 }
