@@ -231,6 +231,11 @@ local function dispatch_package()
 	end
 end
 
+-- 三个回话用来推送
+for i=1,3 do
+	send_request("sendSession")
+end
+
 while true do
 	dispatch_package()
 	local cmd = socket.readstdin()
