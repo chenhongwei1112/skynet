@@ -3,13 +3,17 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
-                "D:\\chenhw\\code\\lua-5.3.4\\src"
+                "${workspaceFolder}",
+                "D:\\chenhw\\code\\lua-5.3.4\\src",
+                "D:/chenhw/code/linux_h",
+                "D:/chenhw/code/linux_h/x86_64-linux-gnu"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "__x86_64__",
+                "_GNU_SOURCE"
             ],
             "compilerPath": "D:\\chenhw\\code\\mingw-w64\\bin\\gcc.exe",
             "intelliSenseMode": "clang-x64"
